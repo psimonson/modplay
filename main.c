@@ -1,3 +1,11 @@
+/*
+ * main.c - main source file for modplay, a simple MOD file player.
+ *
+ * Author: Philip R. Simonson
+ * Date  : 2019/05/03
+ **********************************************************************
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,6 +19,7 @@
 #endif
 
 #include "c_logger.h"
+#include "config.h"
 
 #include "SDL.h"
 #include "SDL_ttf.h"
@@ -131,12 +140,11 @@ main (int argc, char **argv)
     SDL_Rect modrect;
     TTF_Font *font;
     int running,i;
-    const char* dirname = "music";
-    char stopped;
+    char startup;
     for(i=0; i<MAXFILES; i++)
         files[i].music=NULL;
     init_logger();
-    open_log(CLOG0,"modplay.log");
+    open_log(CLOG0,"/tmp/modplay.log");
     if(argc>3) {
         write_log(CLOG0,ERRMSG "%s [-d dirname]\n",argv[0]);
         close_log(CLOG0);
@@ -183,7 +191,7 @@ main (int argc, char **argv)
     }
     write_log(CLOG0,DBGMSG "SDL_Init() successful!\n");
     SDL_WM_SetCaption("MODPlay",NULL);
-    if(init_text(&font,NULL,10) != 0)
+    if(init_text(&font,fontname,10) != 0)
         return 1;
     Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,4096);
     if(load_files(dirname) != 0) {
@@ -191,9 +199,8 @@ main (int argc, char **argv)
         SDL_Quit();
         return 1;
     }
-    i=0;
-    stopped=running=1;
-    Mix_PlayMusic(files[i].music, 1);
+    i=startup=0;
+    running=1;
     while(running) {
         SDL_Color color = {0,170,200,0};
         SDL_Event e;
@@ -212,8 +219,7 @@ main (int argc, char **argv)
                     Mix_PlayMusic(files[i].music,1);
                 break;
                 case 'o':
-                    stopped = !stopped;
-                    if(stopped == 1)
+                    if(Mix_PausedMusic() == 1)
                         Mix_ResumeMusic();
                     else
                         Mix_PauseMusic();
@@ -243,6 +249,25 @@ main (int argc, char **argv)
             break;
             }
         }
+        
+        /* auto play music */
+        if(Mix_PausedMusic() == 0) {
+            if(Mix_PlayingMusic() == 0) {
+                if(startup == 0) {
+                    Mix_PlayMusic(files[i].music,1);
+                    startup = 1;
+                } else {
+                    if(i<0 || i>=MAXFILES) i=0;
+                    else {
+                        if(files[i].music != NULL) ++i;
+                        else i=0;
+                        Mix_PlayMusic(files[i].music,1);
+                    }
+                }
+            }
+        }
+        
+        /* clear display to blue */
         SDL_FillRect(screen,NULL,SDL_MapRGB(screen->format,0,0,180));
         
         /* display current file name */
