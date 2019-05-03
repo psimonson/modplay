@@ -188,6 +188,13 @@ main ()
                 case 's':
                     Mix_HaltMusic();
                 break;
+                case 'b':
+                    Mix_HaltMusic();
+                    if(i<=0) i=0;
+                    else i--;
+                    if(files[i].music != NULL)
+                        Mix_PlayMusic(files[i].music,1);
+                break;
                 case 'n':
                     Mix_HaltMusic();
                     if(i>=MAXFILES) i=0;
