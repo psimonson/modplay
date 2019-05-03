@@ -39,7 +39,10 @@ load_files (const char *dirname)
     else
         p=opendir(dirname);
     if(p == NULL) {
-        write_log(CLOG0,ERRMSG "Cannot open current directory.\n");
+        if(dirname != NULL)
+            write_log(CLOG0,ERRMSG "Cannot open %s directory.\n",dirname);
+        else
+            write_log(CLOG0,ERRMSG "Cannot open current directory.\n");
         return -1;
     }
     i = res = 0;
@@ -121,18 +124,45 @@ put_text (TTF_Font *font,const char *text,int x,int y,
 }
 
 int
-main ()
+main (int argc, char **argv)
 {
     SDL_Surface *screen;
     SDL_Surface *modname;
     SDL_Rect modrect;
     TTF_Font *font;
     int running,i;
+    const char* dirname = "music";
     char stopped;
     for(i=0; i<MAXFILES; i++)
         files[i].music=NULL;
     init_logger();
     open_log(CLOG0,"modplay.log");
+    if(argc>3) {
+        write_log(CLOG0,ERRMSG "%s [-d dirname]\n",argv[0]);
+        close_log(CLOG0);
+        return 1;
+    }
+    for(i=argc-1;i>0;--i) {
+        if(argv[i][0] == '-') {
+            while(*++argv[i] != 0) {
+                switch(*argv[i]) {
+                case 'd':
+                    dirname = argv[i+1];
+                    if(dirname[0] == '\0') {
+                        write_log(CLOG0,ERRMSG "No directory given.\n");
+                        close_log(CLOG0);
+                        return 1;
+                    }
+                break;
+                default:
+                    write_log(CLOG0,ERRMSG "Unknown option '%c'.\n",*argv[i]);
+                    close_log(CLOG0);
+                    return 1;
+                break;
+                }
+            }
+        }
+    }
     if(SDL_Init(SDL_INIT_AUDIO|SDL_INIT_VIDEO) != 0) {
         write_log(CLOG0,ERRMSG "SDL_Init() failed!\n");
         close_log(CLOG0);
@@ -152,10 +182,11 @@ main ()
         return 1;
     }
     write_log(CLOG0,DBGMSG "SDL_Init() successful!\n");
-    if(init_text(&font, NULL, 10) != 0)
+    SDL_WM_SetCaption("MODPlay",NULL);
+    if(init_text(&font,NULL,10) != 0)
         return 1;
     Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,4096);
-    if(load_files("music") != 0) {
+    if(load_files(dirname) != 0) {
         Mix_CloseAudio();
         SDL_Quit();
         return 1;
