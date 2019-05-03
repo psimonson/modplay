@@ -197,7 +197,7 @@ main ()
                 break;
                 case 'n':
                     Mix_HaltMusic();
-                    if(i>=MAXFILES) i=0;
+                    if(i>=MAXFILES) i=MAXFILES;
                     else i++;
                     if(files[i].music != NULL)
                         Mix_PlayMusic(files[i].music,1);
