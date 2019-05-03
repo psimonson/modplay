@@ -202,7 +202,7 @@ main (int argc, char **argv)
     i=startup=0;
     running=1;
     while(running) {
-        SDL_Color color = {0,170,200,0};
+        SDL_Color color = {200,200,0,0};
         SDL_Event e;
         unsigned int start = SDL_GetTicks();
         if(SDL_PollEvent(&e) != 0) {
