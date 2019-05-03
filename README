@@ -1,0 +1,22 @@
+=================================================
+                .:[MOD PLAY]:.
+=================================================
+I wrote this to be a simple mod file player for
+Windows/Linux/MacOS. Although I haven't tested
+on Windows/MacOS, yet. But I will, right now
+everything that I wanted is implemented. You can
+change the current song. With previous/next keys
+and you can play, stop, pause, and resume play-
+ing. Below are the keys for doing so...
+=================================================
+          .:[CURRENT KEY BINDINGS]:.
+=================================================
+ P      - Play the current file.
+ S      - Stop playing of current file.
+ O      - Pause/Resume playing of current file.
+ N      - Go to the next song.
+ B      - Go to the previous song.
+ Escape - Quit this application.
+=================================================
+              .:[END OF FILE]:.
+=================================================

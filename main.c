@@ -19,12 +19,16 @@
 #define MAXFILES 10
 #define MAXNAME  64
 
+#define WINDOW_WIDTH  320
+#define WINDOW_HEIGHT 64
+
 struct file {
     char name[MAXNAME];
     Mix_Music *music;
 } files[MAXFILES];
 
-int load_files(const char *dirname)
+int
+load_files (const char *dirname)
 {
     struct dirent *dir;
     int res,i;
@@ -39,7 +43,7 @@ int load_files(const char *dirname)
         return -1;
     }
     i = res = 0;
-    while((dir=readdir(p)) != NULL)
+    while(i<MAXFILES && (dir=readdir(p)) != NULL)
         if(strcmp(dir->d_name,".") != 0 || strcmp(dir->d_name,"..") != 0) {
             if(strstr(dir->d_name,".mod") != NULL) {
                 char name[260];
@@ -59,8 +63,6 @@ int load_files(const char *dirname)
                 strncpy(files[i].name,dir->d_name,strlen(dir->d_name));
                 write_log(CLOG0,DBGMSG "Opened: %s at pos %d.\n",
                         dir->d_name,i);
-                if(i>=MAXFILES)
-                    break;
                 i++;
             }
         }
@@ -92,7 +94,7 @@ init_text (TTF_Font **font,const char *name,int size)
 }
 
 void
-quit_text(TTF_Font **font)
+quit_text (TTF_Font **font)
 {
     write_log(CLOG0,DBGMSG "Destroying font...\n");
     TTF_CloseFont(*font);
@@ -142,7 +144,7 @@ main ()
         SDL_Quit();
         return 1;
     }
-    screen = SDL_SetVideoMode(320,240,24,SDL_SWSURFACE);
+    screen = SDL_SetVideoMode(WINDOW_WIDTH,WINDOW_HEIGHT,24,SDL_SWSURFACE);
     if(screen == NULL) {
         write_log(CLOG0,ERRMSG "SDL_SetVideoMode() failed!\n");
         close_log(CLOG0);
@@ -222,6 +224,24 @@ main ()
                 sprintf(name,"MOD [%d]: <null>",i);
             modname = put_text(font,name,0,0,&modrect,color);
         }
+        SDL_BlitSurface(modname,NULL,screen,&modrect);
+        SDL_FreeSurface(modname);
+
+        /* put help message */
+        modname = put_text(font,"[Play:p | Pause/Resume:o | Stop:s]",0,
+                            modrect.h*2,&modrect,color);
+        SDL_BlitSurface(modname,NULL,screen,&modrect);
+        SDL_FreeSurface(modname);
+
+        /* put rest of help */
+        modname = put_text(font,"[Next Song:n | Previous Song:b]",0,
+                            modrect.h*3,&modrect,color);
+        SDL_BlitSurface(modname,NULL,screen,&modrect);
+        SDL_FreeSurface(modname);
+
+        /* print escape quits */
+        modname = put_text(font,"ESC: to quit this mod player...",0,
+                            modrect.h*4,&modrect,color);
         SDL_BlitSurface(modname,NULL,screen,&modrect);
         SDL_FreeSurface(modname);
         
