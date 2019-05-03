@@ -25,6 +25,7 @@
 #include "SDL_ttf.h"
 #include "SDL_mixer.h"
 
+#define APPVER   "v0.1"
 #define MAXFILES 10
 #define MAXNAME  64
 
@@ -190,7 +191,7 @@ main (int argc, char **argv)
         return 1;
     }
     write_log(CLOG0,DBGMSG "SDL_Init() successful!\n");
-    SDL_WM_SetCaption("MODPlay",NULL);
+    SDL_WM_SetCaption("MODPlay " APPVER,NULL);
     if(init_text(&font,fontname,10) != 0)
         return 1;
     Mix_OpenAudio(22050,MIX_DEFAULT_FORMAT,2,4096);
@@ -228,18 +229,18 @@ main (int argc, char **argv)
                     Mix_HaltMusic();
                 break;
                 case 'b':
-                    Mix_HaltMusic();
+                    i--;
                     if(i<=0) i=0;
-                    else i--;
-                    if(files[i].music != NULL)
-                        Mix_PlayMusic(files[i].music,1);
+                    else if(i>=MAXFILES) i=MAXFILES;
+                    Mix_HaltMusic();
+                    startup=0;
                 break;
                 case 'n':
+                    i++;
+                    if(i<0) i=0;
+                    else if(i>=MAXFILES) i=MAXFILES;
                     Mix_HaltMusic();
-                    if(i>=MAXFILES) i=MAXFILES;
-                    else i++;
-                    if(files[i].music != NULL)
-                        Mix_PlayMusic(files[i].music,1);
+                    startup=0;
                 break;
                 default:
                 break;
