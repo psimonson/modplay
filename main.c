@@ -25,10 +25,8 @@
 #include "SDL_ttf.h"
 #include "SDL_mixer.h"
 
-#define APPVER   "v0.1"
-#define MAXFILES 10
-#define MAXNAME  64
-
+#define APPVER        "v0.1"
+#define MAXNAME       64
 #define WINDOW_WIDTH  320
 #define WINDOW_HEIGHT 64
 

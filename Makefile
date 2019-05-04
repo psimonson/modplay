@@ -6,6 +6,7 @@ SRCDIR=$(shell pwd)
 DESTDIR=
 PREFIX=usr/local
 CFGFILE=config.h
+MODPLAY_MAXFILES?=32
 
 OBJS=main.o
 TRGT=modplay
@@ -20,7 +21,7 @@ $(TRGT): $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(CFGFILE):
-	cp $(SRCDIR)/config.def.h $(SRCDIR)/$(CFGFILE)
+	sed 's/MAXFILES 10/MAXFILES ${MODPLAY_MAXFILES}/' $(SRCDIR)/config.def.h > $(SRCDIR)/$(CFGFILE)
 	
 clean:
 	rm -f $(SRCDIR)/*~ $(SRCDIR)/*.log $(SRCDIR)/$(OBJS) $(SRCDIR)/$(TRGT)
@@ -30,6 +31,7 @@ install:
 	install $(TRGT) -t $(DESTDIR)/$(PREFIX)/bin
 	mkdir -p $(DESTDIR)/$(PREFIX)/share/modplay
 	cp -R $(SRCDIR)/music $(DESTDIR)/$(PREFIX)/share/modplay
+	chmod -R 755 $(DESTDIR)/$(PREFIX)/share/modplay
 
 uninstall:
 	rm -f $(DESTDIR)/$(PREFIX)/bin/$(TRGT)
