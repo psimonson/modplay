@@ -223,11 +223,11 @@ main (int argc, char **argv)
                 break;
                 case 'o':
                     if(Mix_PausedMusic() == 1) {
-                        stopped = 1;
+                        stopped = 0;
                         Mix_ResumeMusic();
                     } else {
                         Mix_PauseMusic();
-                        stopped = 0;
+                        stopped = 1;
                     }
                 break;
                 case 's':
