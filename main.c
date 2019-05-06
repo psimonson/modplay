@@ -253,7 +253,42 @@ main (int argc, char **argv)
         
         /* auto play music */
         if(Mix_PlayingMusic() == 0 && halt == 0) {
-            if(stopped == 1) {
+            if(stopped == 1) { /* only redraw when playing new song */
+                /* clear display to blue */
+                SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 180));
+                
+                /* display current file name */
+                {
+                    char name[256];
+                    memset(name, 0, 256);
+                    if(files[i].music != NULL)
+                        sprintf(name,"MOD [%d]: %s", i, files[i].name);
+                    else
+                        sprintf(name,"MOD [%d]: <null>", i);
+                    modname = put_text(font, name, 0, 0, &modrect, color);
+                }
+                SDL_BlitSurface(modname, NULL, screen, &modrect);
+                SDL_FreeSurface(modname);
+
+                /* put help message */
+                modname = put_text(font, "[Play:p | Pause/Resume:o | Stop:s]", 0,
+                                    modrect.h*2, &modrect, color);
+                SDL_BlitSurface(modname, NULL, screen, &modrect);
+                SDL_FreeSurface(modname);
+
+                /* put rest of help */
+                modname = put_text(font, "[Next Song:n | Previous Song:b]", 0,
+                                    modrect.h*3, &modrect, color);
+                SDL_BlitSurface(modname, NULL, screen, &modrect);
+                SDL_FreeSurface(modname);
+
+                /* print escape quits */
+                modname = put_text(font, "[  ESC: Quit this mod player  ]", 0,
+                                    modrect.h*4, &modrect, color);
+                SDL_BlitSurface(modname, NULL, screen, &modrect);
+                SDL_FreeSurface(modname);
+                
+                SDL_UpdateRect(screen, 0, 0, 0, 0);
                 Mix_PlayMusic(files[i].music, 1);
                 stopped = 0;
             } else {
@@ -265,43 +300,8 @@ main (int argc, char **argv)
                 }
             }
         }
-        
-        /* clear display to blue */
-        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0, 0, 180));
-        
-        /* display current file name */
-        {
-            char name[256];
-            memset(name, 0, 256);
-            if(files[i].music != NULL)
-                sprintf(name,"MOD [%d]: %s", i, files[i].name);
-            else
-                sprintf(name,"MOD [%d]: <null>", i);
-            modname = put_text(font, name, 0, 0, &modrect, color);
-        }
-        SDL_BlitSurface(modname, NULL, screen, &modrect);
-        SDL_FreeSurface(modname);
 
-        /* put help message */
-        modname = put_text(font, "[Play:p | Pause/Resume:o | Stop:s]", 0,
-                            modrect.h*2, &modrect, color);
-        SDL_BlitSurface(modname, NULL, screen, &modrect);
-        SDL_FreeSurface(modname);
-
-        /* put rest of help */
-        modname = put_text(font, "[Next Song:n | Previous Song:b]", 0,
-                            modrect.h*3, &modrect, color);
-        SDL_BlitSurface(modname, NULL, screen, &modrect);
-        SDL_FreeSurface(modname);
-
-        /* print escape quits */
-        modname = put_text(font, "[  ESC: Quit this mod player  ]", 0,
-                            modrect.h*4, &modrect, color);
-        SDL_BlitSurface(modname, NULL, screen, &modrect);
-        SDL_FreeSurface(modname);
-        
-        SDL_UpdateRect(screen, 0, 0, 0, 0);
-        
+        /* cap at 60 FPS */        
         if(1000/60 > SDL_GetTicks()-start)
             SDL_Delay(1000/60-(SDL_GetTicks()-start));
     }
