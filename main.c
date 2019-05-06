@@ -266,7 +266,7 @@ main (int argc, char **argv)
                 } else {
                     if(i<0 || i>=MAXFILES) i = 0;
                     else {
-                        if(files[i].music != NULL) ++i;
+                        if(i>0 && files[i].music != NULL) ++i;
                         else i = 0;
                         Mix_PlayMusic(files[i].music, 1);
                     }
