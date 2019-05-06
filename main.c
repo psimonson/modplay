@@ -141,8 +141,8 @@ main (int argc, char **argv)
     SDL_Rect modrect;
     TTF_Font *font;
     int running,i;
-    char startup;
     char stopped;
+    char halt;
     for(i=0; i<MAXFILES; i++)
         files[i].music = NULL;
     init_logger();
@@ -202,7 +202,8 @@ main (int argc, char **argv)
         return 1;
     }
     running = 1;
-    i = startup = stopped = 0;
+    stopped = 1;
+    i = halt = 0;
     while(running) {
         SDL_Color color = {200,200,0,0};
         SDL_Event e;
@@ -218,35 +219,28 @@ main (int argc, char **argv)
                     running=0;
                 break;
                 case 'p':
-                    stopped = 0;
-                    Mix_PlayMusic(files[i].music, 1);
+                    stopped = 1;
+                    halt = 0;
                 break;
                 case 'o':
-                    if(Mix_PausedMusic() == 1) {
-                        stopped = 0;
+                    if(Mix_PausedMusic() == 1)
                         Mix_ResumeMusic();
-                    } else {
+                    else
                         Mix_PauseMusic();
-                        stopped = 1;
-                    }
                 break;
                 case 's':
-                    stopped = 1;
                     Mix_HaltMusic();
+                    halt = 1;
                 break;
                 case 'b':
-                    i--;
-                    if(i<=0) i = 0;
-                    else if(i>=MAXFILES) i = MAXFILES;
                     Mix_HaltMusic();
-                    startup = stopped = 0;
+                    if(i<=0) i = 0;
+                    else --i;
+                    stopped = 1;
                 break;
                 case 'n':
-                    i++;
-                    if(i<0) i = 0;
-                    else if(i>=MAXFILES) i = MAXFILES;
                     Mix_HaltMusic();
-                    startup = stopped = 0;
+                    stopped = 0;
                 break;
                 default:
                 break;
@@ -258,18 +252,16 @@ main (int argc, char **argv)
         }
         
         /* auto play music */
-        if(Mix_PausedMusic() == 0 && stopped == 0) {
-            if(Mix_PlayingMusic() == 0) {
-                if(startup == 0) {
-                    Mix_PlayMusic(files[i].music, 1);
-                    startup = 1;
-                } else {
-                    if(i<0 || i>=MAXFILES) i = 0;
-                    else {
-                        if(i>0 && files[i].music != NULL) ++i;
-                        else i = 0;
-                        Mix_PlayMusic(files[i].music, 1);
-                    }
+        if(Mix_PlayingMusic() == 0 && halt == 0) {
+            if(stopped == 1) {
+                Mix_PlayMusic(files[i].music, 1);
+                stopped = 0;
+            } else {
+                if(i<0 || i>=MAXFILES) i = 0;
+                else {
+                    if(files[i].music != NULL) i++;
+                    else i = 0;
+                    stopped = 1;
                 }
             }
         }
