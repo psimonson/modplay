@@ -292,7 +292,7 @@ main (int argc, char **argv)
                 Mix_PlayMusic(files[i].music, 1);
                 stopped = 0;
             } else {
-                if(i<0 || i>=MAXFILES) i = 0;
+                if(i<0 || i>MAXFILES) i = 0;
                 else {
                     if(files[i].music != NULL) i++;
                     else i = 0;
